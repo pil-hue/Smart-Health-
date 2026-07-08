@@ -19,6 +19,14 @@ function App() {
   const [theme, setTheme] = useState(() => {
     return localStorage.getItem('theme') || 'system';
   });
+  const [language, setLanguage] = useState(() => {
+    return localStorage.getItem('language') || 'en';
+  });
+
+  const handleLanguageChange = (lang) => {
+    setLanguage(lang);
+    localStorage.setItem('language', lang);
+  };
 
   // Apply theme to html root tag
   useEffect(() => {
@@ -95,6 +103,7 @@ function App() {
         <Sidebar 
           isOpen={isSidebarOpen} 
           onClose={() => setIsSidebarOpen(false)} 
+          language={language}
         />
 
         {/* Main Panel layout */}
@@ -113,6 +122,8 @@ function App() {
             onResolveAllAlerts={handleResolveAllAlerts}
             theme={theme}
             setTheme={setTheme}
+            language={language}
+            onLanguageChange={handleLanguageChange}
           />
 
 
@@ -121,19 +132,19 @@ function App() {
             <Routes>
               <Route 
                 path="/" 
-                element={<Dashboard selectedDistrictId={selectedDistrictId} />} 
+                element={<Dashboard selectedDistrictId={selectedDistrictId} language={language} />} 
               />
               <Route 
                 path="/phc/:id" 
-                element={<PHCDetails />} 
+                element={<PHCDetails language={language} />} 
               />
               <Route 
                 path="/alerts" 
-                element={<Alerts />} 
+                element={<Alerts language={language} />} 
               />
               <Route 
                 path="/settings" 
-                element={<Settings theme={theme} setTheme={setTheme} />} 
+                element={<Settings language={language} />} 
               />
             </Routes>
           </main>

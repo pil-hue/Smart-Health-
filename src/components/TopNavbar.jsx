@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FiMenu, FiBell, FiUser, FiAlertCircle, FiAlertTriangle, FiInfo, FiCheck, FiSun, FiMoon, FiMonitor } from 'react-icons/fi';
+import { TRANSLATIONS } from '../utils/translations';
 
 /**
  * Top Navbar component containing district filtering, notifications dropdown, theme toggler, and user profiles.
@@ -16,8 +17,11 @@ const TopNavbar = ({
   onResolveAlert,
   onResolveAllAlerts,
   theme = 'system',
-  setTheme
+  setTheme,
+  language = 'en',
+  onLanguageChange
 }) => {
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en;
   const [isDropdownOpen, setIsDropdownOpen] = useState(false);
   const [showConfirmAll, setShowConfirmAll] = useState(false);
   const dropdownRef = useRef(null);
@@ -74,7 +78,7 @@ const TopNavbar = ({
         >
           <FiMenu />
         </button>
-        <span className="navbar-title">{title}</span>
+        <span className="navbar-title">{t.title}</span>
       </div>
 
       <div className="navbar-right">
@@ -110,7 +114,7 @@ const TopNavbar = ({
           {isDropdownOpen && (
             <div className="notifications-dropdown">
               <div className="notifications-header">
-                <h3>Active Alerts ({activeAlerts.length})</h3>
+                <h3>{t.activeAlerts} ({activeAlerts.length})</h3>
                 {activeAlerts.length > 0 && (
                   <div className="confirm-all-container">
                     {!showConfirmAll ? (
@@ -119,7 +123,7 @@ const TopNavbar = ({
                         className="clear-all-btn"
                         onClick={() => setShowConfirmAll(true)}
                       >
-                        Mark all read
+                        {t.markAllRead}
                       </button>
                     ) : (
                       <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
@@ -131,14 +135,14 @@ const TopNavbar = ({
                             setShowConfirmAll(false);
                           }}
                         >
-                          Acknowledge all
+                          {t.confirmAckAll}
                         </button>
                         <button 
                           type="button" 
                           className="cancel-ack-all-btn"
                           onClick={() => setShowConfirmAll(false)}
                         >
-                          Cancel
+                          {t.cancel}
                         </button>
                       </div>
                     )}
@@ -179,7 +183,7 @@ const TopNavbar = ({
                 ) : (
                   <div className="notifications-empty">
                     <FiBell className="empty-bell-icon" />
-                    <p>No active alerts</p>
+                    <p>{t.activeAlerts === 'Active Alerts' ? 'No active alerts' : t.activeAlerts === 'सक्रिय अलर्ट' ? 'कोई सक्रिय अलर्ट नहीं' : 'యాక్టివ్ హెచ్చరికలు లేవు'}</p>
                     <span>All health facilities report operations running smoothly.</span>
                   </div>
                 )}
@@ -187,11 +191,26 @@ const TopNavbar = ({
 
               <div className="notifications-footer">
                 <Link to="/alerts" onClick={() => setIsDropdownOpen(false)}>
-                  View All Alerts Log
+                  {t.viewAllAlerts}
                 </Link>
               </div>
             </div>
           )}
+        </div>
+
+        {/* Multilingual Selector */}
+        <div style={{ marginRight: '8px', display: 'flex', alignItems: 'center' }}>
+          <select
+            className="navbar-district-select"
+            value={language}
+            onChange={(e) => onLanguageChange && onLanguageChange(e.target.value)}
+            aria-label="Language Selector"
+            style={{ padding: '6px 12px', minWidth: '95px' }}
+          >
+            <option value="en">English</option>
+            <option value="hi">हिन्दी</option>
+            <option value="te">తెలుగు</option>
+          </select>
         </div>
 
         {/* Theme Segmented Switcher */}

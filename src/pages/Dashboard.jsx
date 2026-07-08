@@ -16,11 +16,14 @@ import {
   FiX
 } from 'react-icons/fi';
 
+import { TRANSLATIONS } from '../utils/translations';
+
 /**
  * District Dashboard Page.
  * Displays aggregate metrics and lists all local Primary Health Centers.
  */
-const Dashboard = ({ selectedDistrictId }) => {
+const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en;
   const navigate = useNavigate();
   const [phcs, setPhcs] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -113,12 +116,12 @@ const Dashboard = ({ selectedDistrictId }) => {
   // Reusable DataTable Columns setup
   const columns = [
     {
-      header: 'PHC Name',
+      header: t.facilityName,
       accessor: 'name',
       style: { fontWeight: '600', color: 'var(--text-primary)' }
     },
     {
-      header: 'Bed Occupancy',
+      header: t.bedsAvailability,
       render: (row) => {
         const rate = row.totalBeds > 0 ? Math.round((row.occupiedBeds / row.totalBeds) * 100) : 0;
         let barColor = 'var(--success)';
@@ -128,7 +131,7 @@ const Dashboard = ({ selectedDistrictId }) => {
         return (
           <div className="progress-container" style={{ minWidth: '140px' }}>
             <div className="progress-header">
-              <span>{row.occupiedBeds} / {row.totalBeds} Beds</span>
+              <span>{row.occupiedBeds} / {row.totalBeds} {t.beds.split(' ')[0]}</span>
               <span>{rate}%</span>
             </div>
             <div className="progress-bar-bg">
@@ -142,7 +145,7 @@ const Dashboard = ({ selectedDistrictId }) => {
       }
     },
     {
-      header: 'Doctors Status',
+      header: t.doctorsAtt,
       render: (row) => (
         <span className="flex-align text-semibold">
           <span 
@@ -153,13 +156,13 @@ const Dashboard = ({ selectedDistrictId }) => {
             {row.presentDoctors} / {row.totalDoctors}
           </span>
           <span className="text-sm" style={{ color: 'var(--text-muted)', fontWeight: '400' }}>
-            present
+            {language === 'hi' ? 'उपस्थित' : language === 'te' ? 'హాజరు' : 'present'}
           </span>
         </span>
       )
     },
     {
-      header: "Today's Footfall",
+      header: t.dailyOutpatients,
       accessor: 'todayFootfall',
       render: (row) => (
         <span className="flex-align text-semibold">
@@ -169,10 +172,10 @@ const Dashboard = ({ selectedDistrictId }) => {
       )
     },
     {
-      header: 'Status Flag',
+      header: t.riskStatus,
       render: (row) => (
         <span className={`badge ${row.highRisk ? 'badge-danger' : 'badge-success'}`}>
-          {row.highRisk ? 'High Risk' : 'Normal'}
+          {row.highRisk ? t.critical : t.normal}
         </span>
       )
     }
@@ -181,21 +184,23 @@ const Dashboard = ({ selectedDistrictId }) => {
   return (
     <div>
       <div className="dashboard-header">
-        <h1>District Analytics Dashboard</h1>
-        <p style={{ fontSize: '14px' }}>Real-time updates synced via Firestore</p>
+        <h1>{t.title}</h1>
+        <p style={{ fontSize: '14px' }}>
+          {language === 'hi' ? 'फायरस्टोर के माध्यम से रीयल-टाइम अपडेट' : language === 'te' ? 'ఫైర్‌స్టోర్ ద్వారా నిజ-సమయ అప్‌డేట్లు' : 'Real-time updates synced via Firestore'}
+        </p>
       </div>
 
       {/* Metrics Grid */}
       <div className="metrics-grid">
         <StatCard 
-          title="Total PHCs" 
+          title={t.totalPhcs} 
           value={totalPhcs} 
           icon={FiActivity} 
           iconVariant="primary"
           trend={{ value: 'Active', isPositive: true }}
         />
         <StatCard 
-          title="Beds Occupancy" 
+          title={t.beds} 
           value={`${occupiedBeds}/${totalBeds}`} 
           icon={FiPlusSquare} 
           iconVariant="info"
@@ -203,35 +208,35 @@ const Dashboard = ({ selectedDistrictId }) => {
             value: `${bedsOccupancyRate}%`, 
             isPositive: bedsOccupancyRate < 80, 
             isCritical: bedsOccupancyRate >= 85,
-            label: 'occupied' 
+            label: language === 'hi' ? 'अधिभोग' : language === 'te' ? 'వినియోగం' : 'occupied' 
           }}
         />
         <StatCard 
-          title="Doctors Present" 
+          title={t.doctors} 
           value={`${doctorsPresent}/${totalDoctors}`} 
           icon={FiCheckSquare} 
           iconVariant="success"
           trend={{ 
             value: totalDoctors > 0 ? `${Math.round((doctorsPresent / totalDoctors) * 100)}%` : '0%', 
             isPositive: doctorsPresent === totalDoctors,
-            label: 'attendance rate' 
+            label: language === 'hi' ? 'उपस्थिति दर' : language === 'te' ? 'హాజరు శాతం' : 'attendance rate' 
           }}
           onClick={() => setActiveModal('doctorsPresent')}
         />
         <StatCard 
-          title="Today's Footfall" 
+          title={t.footfall} 
           value={todayFootfall} 
           icon={FiUsers} 
           iconVariant="info"
-          trend={{ label: 'total outpatient visits today' }}
+          trend={{ label: language === 'hi' ? 'आज की कुल ओपीडी' : language === 'te' ? 'నేటి మొత్తం అవుట్‌పేషంట్లు' : 'total outpatient visits today' }}
         />
         <StatCard 
-          title="High Risk PHCs" 
+          title={t.highRisk} 
           value={highRiskPhcs} 
           icon={FiAlertTriangle} 
           iconVariant={highRiskPhcs > 0 ? 'danger' : 'success'}
           trend={{ 
-            value: highRiskPhcs > 0 ? 'Immediate Attention' : 'All Safe', 
+            value: highRiskPhcs > 0 ? (language === 'hi' ? 'तत्काल ध्यान दें' : language === 'te' ? 'తక్షణ శ్రద్ధ' : 'Immediate Attention') : (language === 'hi' ? 'सब सुरक्षित' : language === 'te' ? 'సురక్షితం' : 'All Safe'), 
             isCritical: highRiskPhcs > 0, 
             isPositive: highRiskPhcs === 0 
           }}
@@ -239,12 +244,81 @@ const Dashboard = ({ selectedDistrictId }) => {
         />
       </div>
 
+      {/* AI Supply Chain Optimizer & Resource Redistribution */}
+      <div style={{ marginTop: '32px', marginBottom: '32px', backgroundColor: 'var(--bg-card)', border: '1px solid var(--border)', borderRadius: 'var(--radius-md)', padding: '24px' }}>
+        <div style={{ display: 'flex', alignItems: 'center', gap: '10px', marginBottom: '16px' }}>
+          <FiActivity style={{ color: 'var(--primary)' }} size={24} />
+          <h2 style={{ fontSize: '18px', fontWeight: '800', color: 'var(--text-primary)', margin: 0 }}>
+            {t.aiOptimizer}
+          </h2>
+          <span className="badge badge-success" style={{ fontSize: '11px', textTransform: 'uppercase' }}>AI Live Recommendations</span>
+        </div>
+
+        <p style={{ color: 'var(--text-secondary)', fontSize: '14px', marginTop: '-8px', marginBottom: '20px' }}>
+          {t.redistributionRecs}
+        </p>
+
+        <div className="theme-options-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+          {/* Recommendation 1: Supplies Transfer */}
+          <div style={{ backgroundColor: 'var(--bg-app)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="badge badge-warning" style={{ fontSize: '11px' }}>SUPPLY OPTIMIZATION</span>
+              <strong style={{ fontSize: '12px', color: 'var(--warning)' }}>98% Match Confidence</strong>
+            </div>
+            <h4 style={{ margin: '4px 0', fontSize: '15px', color: 'var(--text-primary)' }}>
+              Transfer 20 Units of Insulin Glargine
+            </h4>
+            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>
+              <strong>Amberpet</strong> has run out of Insulin (0 units remaining, 5 active patients). <strong>Kukatpally</strong> reports a surplus of 50 units (only 12 units required for local safety buffer).
+            </p>
+            <div style={{ marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Kukatpally → Amberpet
+              </span>
+              <button 
+                type="button" 
+                className="modal-action-btn"
+                onClick={() => alert('Supply transfer request dispatched to regional pharmacy dispatcher!')}
+              >
+                Approve Transfer
+              </button>
+            </div>
+          </div>
+
+          {/* Recommendation 2: Staff Reassignment */}
+          <div style={{ backgroundColor: 'var(--bg-app)', border: '1px solid var(--border)', borderRadius: 'var(--radius-sm)', padding: '16px', display: 'flex', flexDirection: 'column', gap: '10px' }}>
+            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span className="badge badge-danger" style={{ fontSize: '11px' }}>STAFF WORKLOAD REDISTRIBUTION</span>
+              <strong style={{ fontSize: '12px', color: 'var(--danger)' }}>94% Match Confidence</strong>
+            </div>
+            <h4 style={{ margin: '4px 0', fontSize: '15px', color: 'var(--text-primary)' }}>
+              Temporarily Reassign 1 Medical Officer
+            </h4>
+            <p style={{ margin: 0, fontSize: '13px', color: 'var(--text-secondary)' }}>
+              <strong>Charminar</strong> reports a Doctor Absence alert and high beds occupancy (91%). <strong>Nampally</strong> has a surplus of active staff (10 doctors present, occupancy 84%).
+            </p>
+            <div style={{ marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '10px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                Nampally → Charminar
+              </span>
+              <button 
+                type="button" 
+                className="modal-action-btn"
+                onClick={() => alert('Medical officer temporary transfer command dispatched!')}
+              >
+                Approve Reassignment
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+
       {/* PHC Table */}
       <DataTable
-        title="Primary Health Centers"
+        title={t.totalPhcs}
         columns={columns}
         data={phcs}
-        searchPlaceholder="Filter PHCs by name..."
+        searchPlaceholder={language === 'hi' ? 'चिकित्सा सुविधा को नाम से फ़िल्टर करें...' : language === 'te' ? 'ఆరోగ్య కేంద్రాన్ని పేరు ద్వారా శోధించండి...' : 'Filter facilities by name...'}
         searchKeys={['name']}
         onRowClick={handlePhcClick}
       />

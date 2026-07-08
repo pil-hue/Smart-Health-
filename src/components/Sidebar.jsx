@@ -2,11 +2,14 @@ import React from 'react';
 import { Link, useLocation } from 'react-router-dom';
 import { FiGrid, FiBell, FiSettings, FiHeart, FiX } from 'react-icons/fi';
 
+import { TRANSLATIONS } from '../utils/translations';
+
 /**
  * Responsive Sidebar Navigation for dashboard layout.
  */
-const Sidebar = ({ isOpen, onClose }) => {
+const Sidebar = ({ isOpen, onClose, language = 'en' }) => {
   const location = useLocation();
+  const t = TRANSLATIONS[language] || TRANSLATIONS.en;
 
   // Helper to determine if a route is active
   const isActiveRoute = (path) => {
@@ -16,9 +19,9 @@ const Sidebar = ({ isOpen, onClose }) => {
   };
 
   const navItems = [
-    { label: 'Dashboard', path: '/', icon: FiGrid },
-    { label: 'Alerts Logs', path: '/alerts', icon: FiBell },
-    { label: 'Settings', path: '/settings', icon: FiSettings }
+    { label: t.dashboard, path: '/', icon: FiGrid },
+    { label: t.alerts, path: '/alerts', icon: FiBell },
+    { label: t.settings, path: '/settings', icon: FiSettings }
   ];
 
   return (
