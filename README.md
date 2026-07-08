@@ -4,23 +4,23 @@ A real-time, interactive analytics dashboard designed for health administrators 
 
 ---
 
-## 🚀 Key Features
+## Key Features
 
-- **📊 Real-Time Metrics Grid**: Monitor active Primary Health Centers (PHCs), aggregate bed occupancy ratios, doctor attendance rates, patient footfalls, and urgent high-risk flags at a glance.
-- **🏥 Dynamic Overlay Modals**:
+- **Real-Time Metrics Grid**: Monitor active Primary Health Centers (PHCs), aggregate bed occupancy ratios, doctor attendance rates, patient footfalls, and urgent high-risk flags at a glance.
+- **Dynamic Overlay Modals**:
   - Clicking **Doctors Present** opens a live attendance registry detailing check-in times and statuses (Present, Absent, On Leave) for all medical personnel.
   - Clicking **High Risk PHCs** displays an urgency list highlighting centers with low staffing or critical capacity thresholds.
-- **🔔 Live Notifications Banner**:
+- **Live Notifications Banner**:
   - Toggles a premium list of critical warnings (e.g. absent doctors, stock exhaustion) synced directly from database streams.
   - Includes a secure **two-step confirmation flow** for acknowledging logs ("Mark all read" -> "Acknowledge all" / "Cancel").
-- **🌓 Segmented Theme Switcher**: Choose between Light Mode, Dark Mode, or follow System Settings instantly using the side-by-side segmented button controls in the top navigation header.
-- **🚨 Incident Logs Register**: Detailed logging page with severity filtering (Critical, Warnings, Info Updates) and direct acknowledgment updates.
-- **📈 Detailed PHC Operations views**: Navigate to specific PHCs to audit beds status, staff attendance cards, and medical stock levels (e.g., Insulin, Amoxicillin, Paracetamol).
-- **⚙️ Configurable Limits**: Type alert trigger threshold percentages directly inside Settings (under range bounds limit controls) and review Chief Medical Officer contact records (read-only for security).
+- **Segmented Theme Switcher**: Choose between Light Mode, Dark Mode, or follow System Settings instantly using the side-by-side segmented button controls in the top navigation header.
+- **Incident Logs Register**: Detailed logging page with severity filtering (Critical, Warnings, Info Updates) and direct acknowledgment updates.
+- **Detailed PHC Operations views**: Navigate to specific PHCs to audit beds status, staff attendance cards, and medical stock levels (e.g., Insulin, Amoxicillin, Paracetamol).
+- **Configurable Limits**: Type alert trigger threshold percentages directly inside Settings (under range bounds limit controls) and review Chief Medical Officer contact records (read-only for security).
 
 ---
 
-## 🛠️ Technology Stack
+## Technology Stack
 
 - **Framework**: [React](https://react.dev/) (v19) + [Vite](https://vite.dev/) (HMR)
 - **Database**: [Firebase Firestore](https://firebase.google.com/docs/firestore) (real-time `onSnapshot` data sync streams)
@@ -32,7 +32,7 @@ A real-time, interactive analytics dashboard designed for health administrators 
 
 ---
 
-## 📦 Project Structure
+## Project Structure
 
 ```
 Smart Health/
@@ -65,7 +65,7 @@ Smart Health/
 
 ---
 
-## ⚙️ Quick Start
+## Quick Start
 
 ### 1. Prerequisites
 Ensure you have [Node.js](https://nodejs.org/) (v18+) installed on your local system.
