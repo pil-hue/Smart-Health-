@@ -1,11 +1,70 @@
 import { db } from '../firebase';
 import { collection, getDocs, onSnapshot, query, where } from 'firebase/firestore';
 
-const DEFAULT_STAFF = [
-  { name: 'Dr. Sarah Jenkins', role: 'Doctor (CMO)' },
-  { name: 'Dr. Amit Patel', role: 'Doctor (Pediatrician)' },
-  { name: 'Dr. Sophia Loren', role: 'Doctor (General Physician)' },
-  { name: 'Dr. Raj Singh', role: 'Doctor (Surgeon)' },
+const DOCTOR_NAMES_BY_PHC = {
+  'phc-1': [
+    { name: 'Dr. Sarah Jenkins', role: 'Doctor (CMO)' },
+    { name: 'Dr. Amit Patel', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. Sophia Loren', role: 'Doctor (General Physician)' },
+    { name: 'Dr. Raj Singh', role: 'Doctor (Surgeon)' }
+  ],
+  'phc-2': [
+    { name: 'Dr. Ramesh Kumar', role: 'Doctor (CMO)' },
+    { name: 'Dr. Priya Nair', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. David Miller', role: 'Doctor (General Physician)' },
+    { name: 'Dr. Anita Desai', role: 'Doctor (Surgeon)' }
+  ],
+  'phc-3': [
+    { name: 'Dr. Syeda Fatima', role: 'Doctor (CMO)' },
+    { name: 'Dr. Asif Ali', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. Vikram Reddy', role: 'Doctor (General Physician)' },
+    { name: 'Dr. Mohammed Ghouse', role: 'Doctor (Surgeon)' }
+  ],
+  'phc-4': [
+    { name: 'Dr. John Smith', role: 'Doctor (CMO)' },
+    { name: 'Dr. Kavitha Rao', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. George Kutty', role: 'Doctor (General Physician)' },
+    { name: 'Dr. Preeti Sharma', role: 'Doctor (Surgeon)' }
+  ],
+  'phc-5': [
+    { name: 'Dr. N. Janardhan', role: 'Doctor (CMO)' },
+    { name: 'Dr. B. Radhika', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. M. Sridhar', role: 'Doctor (General Physician)' },
+    { name: 'Dr. K. Srinivas', role: 'Doctor (Surgeon)' }
+  ],
+  'phc-6': [
+    { name: 'Dr. T. Venkat', role: 'Doctor (CMO)' },
+    { name: 'Dr. G. Lakshmi', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. P. Ravindra', role: 'Doctor (General Physician)' },
+    { name: 'Dr. S. Shashi', role: 'Doctor (Surgeon)' }
+  ],
+  'phc-7': [
+    { name: 'Dr. Robert Vance', role: 'Doctor (CMO)' },
+    { name: 'Dr. Angela Martin', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. Jim Halpert', role: 'Doctor (General Physician)' },
+    { name: 'Dr. Michael Scott', role: 'Doctor (Surgeon)' }
+  ],
+  'phc-8': [
+    { name: 'Dr. Hari Prasad', role: 'Doctor (CMO)' },
+    { name: 'Dr. V. Sandhya', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. N. Rakesh', role: 'Doctor (General Physician)' },
+    { name: 'Dr. G. Archana', role: 'Doctor (Surgeon)' }
+  ],
+  'phc-9': [
+    { name: 'Dr. K. Raghav', role: 'Doctor (CMO)' },
+    { name: 'Dr. M. Swathi', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. D. Rajesh', role: 'Doctor (General Physician)' },
+    { name: 'Dr. P. Shilpa', role: 'Doctor (Surgeon)' }
+  ],
+  'phc-10': [
+    { name: 'Dr. B. Yadagiri', role: 'Doctor (CMO)' },
+    { name: 'Dr. C. Anuradha', role: 'Doctor (Pediatrician)' },
+    { name: 'Dr. M. Shekhar', role: 'Doctor (General Physician)' },
+    { name: 'Dr. J. Swapna', role: 'Doctor (Surgeon)' }
+  ]
+};
+
+const DEFAULT_NURSES = [
   { name: 'Nurse Priya Sharma', role: 'Head Nurse' },
   { name: 'Nurse Jessica Taylor', role: 'Staff Nurse' },
   { name: 'Pharmacist John Doe', role: 'Chief Pharmacist' },
@@ -13,12 +72,10 @@ const DEFAULT_STAFF = [
 ];
 
 const getMockAttendanceForPhc = (phcId) => {
-  // Let's create a realistic attendance list based on PHC capacity/stats
-  // e.g. phc-1 has 6 doctors total, 5 present. phc-3 has 4 doctors total, 2 present.
-  let staffList = [...DEFAULT_STAFF];
+  const customDoctors = DOCTOR_NAMES_BY_PHC[phcId] || DOCTOR_NAMES_BY_PHC['phc-1'];
+  let staffList = [...customDoctors, ...DEFAULT_NURSES];
   
   if (phcId === 'phc-3') {
-    // Hill View Clinic - smaller staff
     staffList = staffList.slice(0, 5);
   }
 
@@ -26,21 +83,15 @@ const getMockAttendanceForPhc = (phcId) => {
     let status = 'Present';
     let checkIn = '08:30 AM';
     
-    // Create status patterns based on phcId
-    if (phcId === 'phc-1' && person.name === 'Dr. Raj Singh') {
+    // Vary checks based on index
+    if (idx === 3) {
       status = 'Absent';
       checkIn = '-';
-    } else if (phcId === 'phc-3') {
-      if (idx === 1) {
-        status = 'Absent';
-        checkIn = '-';
-      }
-      if (idx === 3) {
-        status = 'On Leave';
-        checkIn = '-';
-      }
-    } else if (phcId === 'phc-5' && idx === 2) {
+    } else if (idx === 2 && (phcId === 'phc-3' || phcId === 'phc-5' || phcId === 'phc-9' || phcId === 'phc-10')) {
       status = 'Absent';
+      checkIn = '-';
+    } else if (idx === 1 && phcId === 'phc-10') {
+      status = 'On Leave';
       checkIn = '-';
     }
 

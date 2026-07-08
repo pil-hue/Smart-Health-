@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { subscribePHCs } from '../services/phcService';
 import { getAttendanceByPHC } from '../services/attendanceService';
@@ -31,6 +31,10 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
   const [activeModal, setActiveModal] = useState(null);
   const [attendanceData, setAttendanceData] = useState([]);
   const [loadingAttendance, setLoadingAttendance] = useState(false);
+  const [doctorSearchQuery, setDoctorSearchQuery] = useState('');
+  const [transferApproved, setTransferApproved] = useState(false);
+  const [reassignmentApproved, setReassignmentApproved] = useState(false);
+  const tableRef = useRef(null);
 
   // Reset modal state when district changes
   useEffect(() => {
@@ -198,6 +202,7 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
           icon={FiActivity} 
           iconVariant="primary"
           trend={{ value: 'Active', isPositive: true }}
+          onClick={() => tableRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
         <StatCard 
           title={t.beds} 
@@ -210,6 +215,7 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
             isCritical: bedsOccupancyRate >= 85,
             label: language === 'hi' ? 'अधिभोग' : language === 'te' ? 'వినియోగం' : 'occupied' 
           }}
+          onClick={() => tableRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
         <StatCard 
           title={t.doctors} 
@@ -219,7 +225,7 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
           trend={{ 
             value: totalDoctors > 0 ? `${Math.round((doctorsPresent / totalDoctors) * 100)}%` : '0%', 
             isPositive: doctorsPresent === totalDoctors,
-            label: language === 'hi' ? 'उपस्थिति दर' : language === 'te' ? 'హాజరు శాతం' : 'attendance rate' 
+            label: language === 'hi' ? 'उपस्थिति दर' : language === 'te' ? 'హజరు శాతం' : 'attendance rate' 
           }}
           onClick={() => setActiveModal('doctorsPresent')}
         />
@@ -229,6 +235,7 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
           icon={FiUsers} 
           iconVariant="info"
           trend={{ label: language === 'hi' ? 'आज की कुल ओपीडी' : language === 'te' ? 'నేటి మొత్తం అవుట్‌పేషంట్లు' : 'total outpatient visits today' }}
+          onClick={() => tableRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
         <StatCard 
           title={t.highRisk} 
@@ -278,9 +285,16 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
               <button 
                 type="button" 
                 className="modal-action-btn"
-                onClick={() => alert('Supply transfer request dispatched to regional pharmacy dispatcher!')}
+                onClick={() => setTransferApproved(true)}
+                disabled={transferApproved}
+                style={{
+                  backgroundColor: transferApproved ? 'var(--success-light)' : '',
+                  color: transferApproved ? 'var(--success)' : '',
+                  borderColor: transferApproved ? 'var(--success-border)' : '',
+                  cursor: transferApproved ? 'not-allowed' : 'pointer'
+                }}
               >
-                Approve Transfer
+                {transferApproved ? '✓ Dispatched' : 'Approve Transfer'}
               </button>
             </div>
           </div>
@@ -304,9 +318,16 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
               <button 
                 type="button" 
                 className="modal-action-btn"
-                onClick={() => alert('Medical officer temporary transfer command dispatched!')}
+                onClick={() => setReassignmentApproved(true)}
+                disabled={reassignmentApproved}
+                style={{
+                  backgroundColor: reassignmentApproved ? 'var(--success-light)' : '',
+                  color: reassignmentApproved ? 'var(--success)' : '',
+                  borderColor: reassignmentApproved ? 'var(--success-border)' : '',
+                  cursor: reassignmentApproved ? 'not-allowed' : 'pointer'
+                }}
               >
-                Approve Reassignment
+                {reassignmentApproved ? '✓ Dispatched' : 'Approve Reassignment'}
               </button>
             </div>
           </div>
@@ -314,14 +335,16 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
       </div>
 
       {/* PHC Table */}
-      <DataTable
-        title={t.totalPhcs}
-        columns={columns}
-        data={phcs}
-        searchPlaceholder={language === 'hi' ? 'चिकित्सा सुविधा को नाम से फ़िल्टर करें...' : language === 'te' ? 'ఆరోగ్య కేంద్రాన్ని పేరు ద్వారా శోధించండి...' : 'Filter facilities by name...'}
-        searchKeys={['name']}
-        onRowClick={handlePhcClick}
-      />
+      <div ref={tableRef}>
+        <DataTable
+          title={t.totalPhcs}
+          columns={columns}
+          data={phcs}
+          searchPlaceholder={language === 'hi' ? 'चिकित्सा सुविधा को नाम से फ़िल्टर करें...' : language === 'te' ? 'ఆరోగ్య కేంద్రాన్ని పేరు ద్వారా శోధించండి...' : 'Filter facilities by name...'}
+          searchKeys={['name']}
+          onRowClick={handlePhcClick}
+        />
+      </div>
 
       {/* High Risk PHCs Modal */}
       {activeModal === 'highRisk' && (
@@ -394,60 +417,87 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
                   <span style={{ fontSize: '14px', color: 'var(--text-secondary)' }}>Compiling registry lists...</span>
                 </div>
               ) : (
-                <div className="modal-body-list">
-                  {attendanceData.length > 0 ? (
-                    attendanceData.map((doc) => {
-                      let statusColor = 'var(--text-muted)';
-                      let statusBg = 'var(--border)';
-                      if (doc.status === 'Present') {
-                        statusColor = 'var(--success)';
-                        statusBg = 'var(--success-light)';
-                      } else if (doc.status === 'Absent') {
-                        statusColor = 'var(--danger)';
-                        statusBg = 'var(--danger-light)';
-                      } else if (doc.status === 'On Leave') {
-                        statusColor = 'var(--warning)';
-                        statusBg = 'var(--warning-light)';
-                      }
+                <>
+                  <div style={{ padding: '0 0 16px 0', borderBottom: '1px solid var(--border)', marginBottom: '16px' }}>
+                    <input
+                      type="text"
+                      placeholder={language === 'hi' ? 'नाम या स्थान (पीएचसी) से डॉक्टरों को खोजें...' : language === 'te' ? 'వైద్యులను పేరు లేదా స్థలం ద్వారా శోధించండి...' : 'Search doctors by name or place (PHC)...'}
+                      value={doctorSearchQuery}
+                      onChange={(e) => setDoctorSearchQuery(e.target.value)}
+                      style={{
+                        width: '100%',
+                        padding: '10px 16px',
+                        borderRadius: 'var(--radius-sm)',
+                        border: '1px solid var(--border)',
+                        backgroundColor: 'var(--bg-app)',
+                        color: 'var(--text-primary)',
+                        fontSize: '14px'
+                      }}
+                    />
+                  </div>
+                  
+                  <div className="modal-body-list">
+                    {(() => {
+                      const filtered = attendanceData.filter(doc => 
+                        doc.staffName.toLowerCase().includes(doctorSearchQuery.toLowerCase()) ||
+                        doc.phcName.toLowerCase().includes(doctorSearchQuery.toLowerCase())
+                      );
 
-                      return (
-                        <div key={doc.id} className="modal-list-item">
-                          <div className="modal-list-item-left">
-                            <span className="modal-list-item-name">{doc.staffName}</span>
-                            <span className="modal-list-item-sub">
-                              {doc.role} • <strong>{doc.phcName}</strong>
-                            </span>
-                          </div>
-                          <div className="modal-list-item-right">
-                            <span 
-                              className="badge" 
-                              style={{ 
-                                backgroundColor: statusBg, 
-                                color: statusColor, 
-                                border: `1px solid ${statusBg}`,
-                                padding: '4px 10px',
-                                borderRadius: '9999px',
-                                fontSize: '12px',
-                                fontWeight: '600'
-                              }}
-                            >
-                              {doc.status}
-                            </span>
-                            {doc.status === 'Present' && doc.checkInTime !== '-' && (
-                              <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                                {doc.checkInTime}
-                              </span>
-                            )}
-                          </div>
+                      return filtered.length > 0 ? (
+                        filtered.map((doc) => {
+                          let statusColor = 'var(--text-muted)';
+                          let statusBg = 'var(--border)';
+                          if (doc.status === 'Present') {
+                            statusColor = 'var(--success)';
+                            statusBg = 'var(--success-light)';
+                          } else if (doc.status === 'Absent') {
+                            statusColor = 'var(--danger)';
+                            statusBg = 'var(--danger-light)';
+                          } else if (doc.status === 'On Leave') {
+                            statusColor = 'var(--warning)';
+                            statusBg = 'var(--warning-light)';
+                          }
+
+                          return (
+                            <div key={doc.id} className="modal-list-item">
+                              <div className="modal-list-item-left">
+                                <span className="modal-list-item-name">{doc.staffName}</span>
+                                <span className="modal-list-item-sub">
+                                  {doc.role} • <strong>{doc.phcName}</strong>
+                                </span>
+                              </div>
+                              <div className="modal-list-item-right">
+                                <span 
+                                  className="badge" 
+                                  style={{ 
+                                    backgroundColor: statusBg, 
+                                    color: statusColor, 
+                                    border: `1px solid ${statusBg}`,
+                                    padding: '4px 10px',
+                                    borderRadius: '9999px',
+                                    fontSize: '12px',
+                                    fontWeight: '600'
+                                  }}
+                                >
+                                  {doc.status}
+                                </span>
+                                {doc.status === 'Present' && doc.checkInTime !== '-' && (
+                                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                                    {doc.checkInTime}
+                                  </span>
+                                )}
+                              </div>
+                            </div>
+                          );
+                        })
+                      ) : (
+                        <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)' }}>
+                          {language === 'hi' ? 'कोई डॉक्टर नहीं मिले।' : language === 'te' ? 'వైద్యులు ఎవరూ కనుగొనబడలేదు.' : 'No doctors found matching query.'}
                         </div>
                       );
-                    })
-                  ) : (
-                    <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)' }}>
-                      No attendance logs compiled for today.
-                    </div>
-                  )}
-                </div>
+                    })()}
+                  </div>
+                </>
               )}
             </div>
           </div>

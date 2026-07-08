@@ -82,21 +82,12 @@ const TopNavbar = ({
       </div>
 
       <div className="navbar-right">
-        {/* District Selector - Rendered only when list of districts is provided */}
-        {districts.length > 0 && (
-          <select
-            className="navbar-district-select"
-            value={selectedDistrictId}
-            onChange={(e) => onDistrictChange && onDistrictChange(e.target.value)}
-            aria-label="Select District"
-          >
-            {districts.map((d) => (
-              <option key={d.id} value={d.id}>
-                {d.name}
-              </option>
-            ))}
-          </select>
-        )}
+        {/* Static District Display (Hyderabad Only) */}
+        <div style={{ marginRight: '12px', display: 'flex', alignItems: 'center' }}>
+          <span className="badge badge-info" style={{ padding: '6px 14px', fontSize: '13.5px', fontWeight: '700', borderRadius: 'var(--radius-sm)' }}>
+            📍 Hyderabad
+          </span>
+        </div>
 
         {/* Notifications Icon Button with Dropdown Wrapper */}
         <div className="notifications-wrapper" ref={dropdownRef}>

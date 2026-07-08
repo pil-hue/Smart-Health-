@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import { subscribePHCById } from '../services/phcService';
 import { subscribeStockByPHC } from '../services/stockService';
@@ -83,6 +83,7 @@ const PHCDetails = ({ language = 'en' }) => {
   const [stock, setStock] = useState([]);
   const [attendance, setAttendance] = useState([]);
   const [alerts, setAlerts] = useState([]);
+  const staffRef = useRef(null);
 
   // Loading & Error states
   const [loading, setLoading] = useState(true);
@@ -230,6 +231,7 @@ const PHCDetails = ({ language = 'en' }) => {
           icon={FiUsers} 
           iconVariant="success"
           trend={{ label: language === 'hi' ? 'उपस्थित चिकित्सा कर्मचारी' : language === 'te' ? 'వైద్య సిబ్బంది హాజరు' : 'Medical staff present' }}
+          onClick={() => staffRef.current?.scrollIntoView({ behavior: 'smooth' })}
         />
         <StatCard 
           title={t.activeAlerts} 
@@ -322,7 +324,7 @@ const PHCDetails = ({ language = 'en' }) => {
         </div>
 
         {/* Section 3: Staff Attendance */}
-        <div className="phc-section-card" style={{ gridColumn: 'span 2' }}>
+        <div className="phc-section-card" style={{ gridColumn: 'span 2' }} ref={staffRef}>
           <div className="phc-section-title">
             <FiUsers style={{ color: 'var(--primary)' }} size={20} />
             <h2>Medical Staff Duty Roll</h2>
