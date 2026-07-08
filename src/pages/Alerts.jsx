@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { subscribeAlerts } from '../services/alertsService';
+import { subscribeAlerts, resolveAlert } from '../services/alertsService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorComponent from '../components/ErrorComponent';
 import { FiBell, FiAlertCircle, FiAlertTriangle, FiInfo, FiCheck } from 'react-icons/fi';
@@ -33,6 +33,18 @@ const Alerts = () => {
 
     return () => unsubscribe();
   }, []);
+
+  const handleResolveAlert = async (alertId) => {
+    try {
+      await resolveAlert(alertId);
+    } catch (err) {
+      console.error('Failed to resolve alert:', err);
+    }
+    // Optimistic fallback for offline/mock cases
+    setAlerts((prev) =>
+      prev.map((a) => (a.id === alertId ? { ...a, resolved: true } : a))
+    );
+  };
 
   if (loading) {
     return <LoadingSpinner message="Synchronizing central notification logs..." />;
@@ -143,7 +155,7 @@ const Alerts = () => {
                   type="button" 
                   className="filter-btn" 
                   style={{ padding: '6px 12px', fontSize: '12px', alignSelf: 'center', display: 'flex', alignItems: 'center', gap: '4px' }}
-                  onClick={() => alert.resolved = true}
+                  onClick={() => handleResolveAlert(alert.id)}
                   disabled={alert.resolved}
                 >
                   <FiCheck /> {alert.resolved ? 'Resolved' : 'Acknowledge'}

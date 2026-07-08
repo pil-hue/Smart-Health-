@@ -1,5 +1,18 @@
+# Dependency directories
+node_modules/
+jspm_packages/
+web_modules/
+
+# Build outputs and distributions
+dist/
+dist-ssr/
+build/
+out/
+.vercel/
+.netlify/
+
 # Logs
-logs
+logs/
 *.log
 npm-debug.log*
 yarn-debug.log*
@@ -7,18 +20,34 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
-dist
-dist-ssr
-*.local
-
-# Editor directories and files
+# Editor/OS Files
 .vscode/*
 !.vscode/extensions.json
-.idea
-.DS_Store
+.idea/
 *.suo
 *.ntvs*
 *.njsproj
 *.sln
 *.sw?
+.DS_Store
+Thumbs.db
+
+# Environment variables and secrets
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+.env.staging.local
+
+# Testing caches and logs
+.eslintcache
+.stylelintcache
+.rpt2_cache/
+.rts2_cache_js/
+.rts2_cache_ts/
+.tscache/
+
+# Vite/Next.js cache
+.vite/
+.next/

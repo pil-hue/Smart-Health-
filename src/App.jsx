@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { subscribeDistricts } from './services/districtService';
-import { subscribeAlerts } from './services/alertsService';
+import { subscribeAlerts, resolveAlert, resolveAllAlerts } from './services/alertsService';
 
 import Sidebar from './components/Sidebar';
 import TopNavbar from './components/TopNavbar';
@@ -13,8 +13,22 @@ import Settings from './pages/Settings';
 function App() {
   const [districts, setDistricts] = useState([]);
   const [selectedDistrictId, setSelectedDistrictId] = useState('');
+  const [alerts, setAlerts] = useState([]);
   const [alertsCount, setAlertsCount] = useState(0);
   const [isSidebarOpen, setIsSidebarOpen] = useState(false);
+  const [theme, setTheme] = useState(() => {
+    return localStorage.getItem('theme') || 'system';
+  });
+
+  // Apply theme to html root tag
+  useEffect(() => {
+    if (theme === 'system') {
+      document.documentElement.removeAttribute('data-theme');
+    } else {
+      document.documentElement.setAttribute('data-theme', theme);
+    }
+    localStorage.setItem('theme', theme);
+  }, [theme]);
 
   // Subscribe to districts listing from database
   useEffect(() => {
@@ -37,6 +51,7 @@ function App() {
     const unsubscribe = subscribeAlerts(
       null, // Subscribes to all facility warnings
       (data) => {
+        setAlerts(data);
         const activeCount = data.filter((a) => !a.resolved).length;
         setAlertsCount(activeCount);
       },
@@ -45,6 +60,32 @@ function App() {
 
     return () => unsubscribe();
   }, []);
+
+  const handleResolveAlert = async (alertId) => {
+    try {
+      await resolveAlert(alertId);
+    } catch (err) {
+      console.error('Error resolving alert:', err);
+    }
+    // Optimistic / Fallback state update
+    setAlerts((prev) =>
+      prev.map((a) => (a.id === alertId ? { ...a, resolved: true } : a))
+    );
+    setAlertsCount((prev) => Math.max(0, prev - 1));
+  };
+
+  const handleResolveAllAlerts = async (alertIds) => {
+    try {
+      await resolveAllAlerts(alertIds);
+    } catch (err) {
+      console.error('Error resolving all alerts:', err);
+    }
+    // Optimistic / Fallback state update
+    setAlerts((prev) =>
+      prev.map((a) => (alertIds.includes(a.id) ? { ...a, resolved: true } : a))
+    );
+    setAlertsCount(0);
+  };
 
   return (
     <BrowserRouter>
@@ -67,7 +108,13 @@ function App() {
             onDistrictChange={setSelectedDistrictId}
             onMenuToggle={() => setIsSidebarOpen(true)}
             alertsCount={alertsCount}
+            alerts={alerts}
+            onResolveAlert={handleResolveAlert}
+            onResolveAllAlerts={handleResolveAllAlerts}
+            theme={theme}
+            setTheme={setTheme}
           />
+
 
           {/* Active section router frame */}
           <main className="content-area">
@@ -86,7 +133,7 @@ function App() {
               />
               <Route 
                 path="/settings" 
-                element={<Settings />} 
+                element={<Settings theme={theme} setTheme={setTheme} />} 
               />
             </Routes>
           </main>

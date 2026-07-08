@@ -1,5 +1,6 @@
 import { db } from '../firebase';
-import { collection, getDocs, onSnapshot, query, where } from 'firebase/firestore';
+import { collection, getDocs, onSnapshot, query, where, doc, updateDoc } from 'firebase/firestore';
+
 
 export const MOCK_ALERTS = [
   {
@@ -101,3 +102,42 @@ export const subscribeAlerts = (phcId = null, onNext, onError) => {
     }
   );
 };
+
+/**
+ * Mark a specific alert as resolved.
+ */
+export const resolveAlert = async (alertId) => {
+  try {
+    const docRef = doc(db, 'alerts', alertId);
+    await updateDoc(docRef, { resolved: true });
+  } catch (error) {
+    console.warn(`Firestore alert resolve failed for ID ${alertId}, updating fallback mock data:`, error);
+  }
+  
+  // Local MOCK_ALERTS fallback update
+  const alertIndex = MOCK_ALERTS.findIndex((a) => a.id === alertId);
+  if (alertIndex !== -1) {
+    MOCK_ALERTS[alertIndex].resolved = true;
+  }
+};
+
+/**
+ * Mark a batch of alerts as resolved.
+ */
+export const resolveAllAlerts = async (alertIds) => {
+  for (const id of alertIds) {
+    try {
+      const docRef = doc(db, 'alerts', id);
+      await updateDoc(docRef, { resolved: true });
+    } catch (error) {
+      console.warn(`Firestore alert resolve failed for ID ${id}, updating fallback mock data:`, error);
+    }
+    
+    // Local MOCK_ALERTS fallback update
+    const alertIndex = MOCK_ALERTS.findIndex((a) => a.id === id);
+    if (alertIndex !== -1) {
+      MOCK_ALERTS[alertIndex].resolved = true;
+    }
+  }
+};
+

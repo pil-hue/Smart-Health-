@@ -6,6 +6,7 @@ import { subscribeAttendanceByPHC } from '../services/attendanceService';
 import { subscribeAlerts } from '../services/alertsService';
 import LoadingSpinner from '../components/LoadingSpinner';
 import ErrorComponent from '../components/ErrorComponent';
+import StatCard from '../components/StatCard';
 import { 
   FiArrowLeft, 
   FiPlusSquare, 

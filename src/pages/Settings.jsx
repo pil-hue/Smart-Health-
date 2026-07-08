@@ -67,32 +67,32 @@ const Settings = () => {
                 </p>
 
                 <div className="form-group">
-                  <label htmlFor="bedThreshold">Bed Occupancy Alert Limit ({bedThreshold}%)</label>
+                  <label htmlFor="bedThreshold">Bed Occupancy Alert Limit (%)</label>
                   <input 
                     id="bedThreshold"
-                    type="range" 
+                    type="number" 
                     min="50" 
                     max="100" 
                     value={bedThreshold} 
                     onChange={(e) => setBedThreshold(Number(e.target.value))}
                   />
                   <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                    Alarms dispatch if total occupied beds exceed this percentage of standard capacity.
+                    Alarms dispatch if total occupied beds exceed this percentage of standard capacity (50% to 100%).
                   </span>
                 </div>
 
                 <div className="form-group" style={{ marginTop: '12px' }}>
-                  <label htmlFor="medicineThreshold">Medicine Out-of-Stock Level ({medicineThreshold}%)</label>
+                  <label htmlFor="medicineThreshold">Medicine Out-of-Stock Level (%)</label>
                   <input 
                     id="medicineThreshold"
-                    type="range" 
+                    type="number" 
                     min="5" 
                     max="50" 
                     value={medicineThreshold} 
                     onChange={(e) => setMedicineThreshold(Number(e.target.value))}
                   />
                   <span className="text-xs" style={{ color: 'var(--text-muted)' }}>
-                    Triggers warning flags when available medicine inventory goes below this ratio of minimum requirements.
+                    Triggers warning flags when available medicine inventory goes below this percentage of minimum requirements (5% to 50%).
                   </span>
                 </div>
               </>
@@ -142,8 +142,7 @@ const Settings = () => {
                     id="cmoName"
                     type="text" 
                     value={cmoName} 
-                    onChange={(e) => setCmoName(e.target.value)} 
-                    required 
+                    disabled
                   />
                 </div>
 
@@ -153,12 +152,13 @@ const Settings = () => {
                     id="districtEmail"
                     type="email" 
                     value={districtEmail} 
-                    onChange={(e) => setDistrictEmail(e.target.value)} 
-                    required 
+                    disabled
                   />
                 </div>
               </>
             )}
+
+
 
             {/* Save Row & Notifications */}
             <div className="settings-save-row" style={{ display: 'flex', alignItems: 'center', gap: '16px' }}>

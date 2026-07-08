@@ -8,10 +8,15 @@ const StatCard = ({
   value, 
   icon: Icon, 
   iconVariant = 'primary', 
-  trend 
+  trend,
+  onClick
 }) => {
   return (
-    <div className="stat-card">
+    <div 
+      className={`stat-card ${onClick ? 'clickable' : ''}`} 
+      onClick={onClick}
+      style={onClick ? { cursor: 'pointer' } : undefined}
+    >
       <div className="stat-card-header">
         <span className="stat-card-title">{title}</span>
         {Icon && (
