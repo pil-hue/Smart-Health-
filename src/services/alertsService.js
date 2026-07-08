@@ -6,7 +6,7 @@ export const MOCK_ALERTS = [
   {
     id: 'alert-1',
     phcId: 'phc-1',
-    phcName: 'Green Valley Primary Health Center',
+    phcName: 'Amberpet',
     type: 'critical',
     title: 'Insulin Stock Exhausted',
     description: 'Insulin Glargine has run out. 5 patients currently depend on daily administration.',
@@ -16,7 +16,7 @@ export const MOCK_ALERTS = [
   {
     id: 'alert-2',
     phcId: 'phc-1',
-    phcName: 'Green Valley Primary Health Center',
+    phcName: 'Amberpet',
     type: 'warning',
     title: 'Amoxicillin Stock Low',
     description: 'Amoxicillin 250mg is below the safety threshold of 200 units (currently 80 remaining).',
@@ -26,7 +26,7 @@ export const MOCK_ALERTS = [
   {
     id: 'alert-3',
     phcId: 'phc-3',
-    phcName: 'Hill View Clinic PHC',
+    phcName: 'Charminar',
     type: 'critical',
     title: 'Doctor Absence Alert',
     description: 'Dr. Raj Singh is absent today without coverage. Bed occupancy is high at 86%.',
@@ -36,7 +36,7 @@ export const MOCK_ALERTS = [
   {
     id: 'alert-4',
     phcId: 'phc-2',
-    phcName: 'Metro Medical Care PHC',
+    phcName: 'Nampally',
     type: 'info',
     title: 'Outpatient Footfall Surge',
     description: 'Daily footfall is at 90% of capacity. Pharmacy lines are experiencing minor delays.',

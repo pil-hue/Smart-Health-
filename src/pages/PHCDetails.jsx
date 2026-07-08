@@ -348,6 +348,146 @@ const PHCDetails = () => {
           </div>
         </div>
 
+        {/* Section 5: Demographics & Key Health Indicators */}
+        <div className="phc-section-card" style={{ gridColumn: 'span 2' }}>
+          <div className="phc-section-title">
+            <FiActivity style={{ color: 'var(--primary)' }} size={20} />
+            <h2>Demographics & Key Health Indicators ({phc.year || 2023})</h2>
+          </div>
+          
+          <div className="metrics-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginTop: '16px' }}>
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>TOTAL POPULATION</span>
+              <p style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', margin: '4px 0' }}>
+                {(phc.population_total || 0).toLocaleString()}
+              </p>
+              <div style={{ display: 'flex', gap: '10px', fontSize: '12px', color: 'var(--text-secondary)', marginTop: '4px' }}>
+                <span>👦 Male: {(phc.population_male || 0).toLocaleString()}</span>
+                <span>👧 Female: {(phc.population_female || 0).toLocaleString()}</span>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>AREA & DENSITY</span>
+              <p style={{ fontSize: '20px', fontWeight: '700', color: 'var(--text-primary)', margin: '4px 0' }}>
+                {phc.area_sqkm || 0} sq. km
+              </p>
+              <span style={{ fontSize: '12px', color: 'var(--text-secondary)' }}>
+                Density: {(phc.population_density_per_sqkm || 0).toLocaleString()} / sq. km
+              </span>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>MATERNAL & CHILD HEALTH</span>
+              <p style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: '4px 0' }}>
+                ANC Registered: {(phc.anc_registered || 0).toLocaleString()}
+              </p>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span>• 4+ ANC Visits: {phc.anc_4plus_visits_pct || 0}%</span>
+                <span>• Full Immunization: {phc.immunization_full_pct || 0}%</span>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>DELIVERY OUTCOMES</span>
+              <p style={{ fontSize: '18px', fontWeight: '700', color: 'var(--text-primary)', margin: '4px 0' }}>
+                Inst. Deliveries: {phc.institutional_deliveries_pct || 0}%
+              </p>
+              <div style={{ fontSize: '12px', color: 'var(--text-secondary)', display: 'flex', flexDirection: 'column', gap: '2px' }}>
+                <span>• PNC within 48h: {phc.pnc_within_48h_pct || 0}%</span>
+                <span>• Skilled Attendance: {phc.skilled_birth_attendance_pct || 0}%</span>
+                <span>• C-Section Rate: {phc.c_section_deliveries_pct || 0}%</span>
+              </div>
+            </div>
+          </div>
+
+          <div className="metrics-detail-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(220px, 1fr))', gap: '20px', marginTop: '20px' }}>
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>CHILD NUTRITION (UNDER 5)</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '13px', color: 'var(--text-primary)', marginTop: '6px' }}>
+                <div>Stunting: <strong style={{ color: 'var(--warning)' }}>{phc.stunting_under5_pct || 0}%</strong></div>
+                <div>Wasting: <strong style={{ color: 'var(--danger)' }}>{phc.wasting_under5_pct || 0}%</strong></div>
+                <div>Underweight: <strong>{phc.underweight_under5_pct || 0}%</strong></div>
+                <div>Severe Wasting: <strong style={{ color: 'var(--danger)' }}>{phc.severe_wasting_under5_pct || 0}%</strong></div>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>ANEMIA PREVALENCE</span>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '8px', fontSize: '13px', color: 'var(--text-primary)', marginTop: '6px' }}>
+                <div>Children: <strong style={{ color: 'var(--danger)' }}>{phc.anemia_children_pct || 0}%</strong></div>
+                <div>Women: <strong style={{ color: 'var(--danger)' }}>{phc.anemia_women_pct || 0}%</strong></div>
+                <div>Men: <strong>{phc.anemia_men_pct || 0}%</strong></div>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '16px', borderRadius: 'var(--radius-sm)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>STATE MMR LEVEL</span>
+              <p style={{ fontSize: '24px', fontWeight: '800', color: 'var(--danger)', margin: '4px 0' }}>
+                {phc.mmr_state_per_100k || 104}
+              </p>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Maternal Mortality Ratio (per 100k live births)</span>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '16px', borderRadius: 'var(--radius-sm)', display: 'flex', flexDirection: 'column', justifyContent: 'center' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>URBAN / RURAL STATUS</span>
+              <p style={{ fontSize: '24px', fontWeight: '800', color: 'var(--primary)', margin: '4px 0' }}>
+                {phc.urban_rural || 'Urban'}
+              </p>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Administrative classification of this block</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Section 6: Facilities Infrastructure */}
+        <div className="phc-section-card" style={{ gridColumn: 'span 2' }}>
+          <div className="phc-section-title">
+            <FiPackage style={{ color: 'var(--primary)' }} size={20} />
+            <h2>Healthcare Facilities Infrastructure</h2>
+          </div>
+
+          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(180px, 1fr))', gap: '16px', marginTop: '16px' }}>
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '16px', borderRadius: 'var(--radius-sm)', textAlign: 'center' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>TOTAL FACILITIES</span>
+              <p style={{ fontSize: '32px', fontWeight: '800', color: 'var(--text-primary)', margin: '4px 0' }}>{phc.facilities_total || 0}</p>
+              <div style={{ display: 'flex', justifyContent: 'space-around', fontSize: '11px', color: 'var(--text-secondary)', marginTop: '8px', borderTop: '1px solid var(--border)', paddingTop: '6px' }}>
+                <span style={{ color: 'var(--success)' }}>🟢 Functional: {phc.facilities_functional || 0}</span>
+                <span style={{ color: 'var(--danger)' }}>🔴 Non-Func: {phc.facilities_non_functional || 0}</span>
+              </div>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '12px 16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>PRIMARY CENTERS (PHC)</span>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: '2px 0' }}>{phc.facilities_phc || 0}</p>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Primary Health Centers</span>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '12px 16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>COMMUNITY CENTERS (CHC)</span>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: '2px 0' }}>{phc.facilities_chc || 0}</p>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Community Health Centers</span>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '12px 16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>URBAN CENTERS (UHC)</span>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: '2px 0' }}>{phc.facilities_uhc || 0}</p>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Urban Health Centers</span>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '12px 16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>DISTRICT HOSPITALS</span>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: '2px 0' }}>{phc.facilities_district_hospital || 0}</p>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>State-run general hospitals</span>
+            </div>
+
+            <div style={{ backgroundColor: 'var(--bg-app)', padding: '12px 16px', borderRadius: 'var(--radius-sm)' }}>
+              <span className="text-xs" style={{ color: 'var(--text-muted)', fontWeight: '600' }}>PRIVATE HOSPITALS</span>
+              <p style={{ fontSize: '24px', fontWeight: '700', color: 'var(--text-primary)', margin: '2px 0' }}>{phc.facilities_private_hospital || 0}</p>
+              <span style={{ fontSize: '11px', color: 'var(--text-muted)' }}>Registered private clinics</span>
+            </div>
+          </div>
+        </div>
+
       </div>
     </div>
   );

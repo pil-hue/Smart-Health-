@@ -2,9 +2,9 @@ import { db } from '../firebase';
 import { collection, getDocs, onSnapshot } from 'firebase/firestore';
 
 const MOCK_DISTRICTS = [
-  { id: 'district-1', name: 'Central District' },
-  { id: 'district-2', name: 'North District' },
-  { id: 'district-3', name: 'South District' }
+  { id: 'district-1', name: 'Hyderabad' },
+  { id: 'district-2', name: 'Rangareddy' },
+  { id: 'district-3', name: 'Medchal-Malkajgiri' }
 ];
 
 /**
