@@ -32,9 +32,23 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
   const [attendanceData, setAttendanceData] = useState([]);
   const [loadingAttendance, setLoadingAttendance] = useState(false);
   const [doctorSearchQuery, setDoctorSearchQuery] = useState('');
-  const [transferApproved, setTransferApproved] = useState(false);
-  const [reassignmentApproved, setReassignmentApproved] = useState(false);
+  const [transferApproved, setTransferApproved] = useState(() => {
+    return localStorage.getItem('transferApproved') === 'true';
+  });
+  const [reassignmentApproved, setReassignmentApproved] = useState(() => {
+    return localStorage.getItem('reassignmentApproved') === 'true';
+  });
   const tableRef = useRef(null);
+
+  const handleApproveTransfer = () => {
+    setTransferApproved(true);
+    localStorage.setItem('transferApproved', 'true');
+  };
+
+  const handleApproveReassignment = () => {
+    setReassignmentApproved(true);
+    localStorage.setItem('reassignmentApproved', 'true');
+  };
 
   // Reset modal state when district changes
   useEffect(() => {
@@ -285,7 +299,7 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
               <button 
                 type="button" 
                 className="modal-action-btn"
-                onClick={() => setTransferApproved(true)}
+                onClick={handleApproveTransfer}
                 disabled={transferApproved}
                 style={{
                   backgroundColor: transferApproved ? 'var(--success-light)' : '',
@@ -318,7 +332,7 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
               <button 
                 type="button" 
                 className="modal-action-btn"
-                onClick={() => setReassignmentApproved(true)}
+                onClick={handleApproveReassignment}
                 disabled={reassignmentApproved}
                 style={{
                   backgroundColor: reassignmentApproved ? 'var(--success-light)' : '',
