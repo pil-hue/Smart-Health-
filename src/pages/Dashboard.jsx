@@ -22,7 +22,14 @@ import { TRANSLATIONS } from '../utils/translations';
  * District Dashboard Page.
  * Displays aggregate metrics and lists all local Primary Health Centers.
  */
-const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
+const Dashboard = ({ 
+  selectedDistrictId, 
+  language = 'en',
+  transferApproved,
+  setTransferApproved,
+  reassignmentApproved,
+  setReassignmentApproved
+}) => {
   const t = TRANSLATIONS[language] || TRANSLATIONS.en;
   const navigate = useNavigate();
   const [phcs, setPhcs] = useState([]);
@@ -32,28 +39,30 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
   const [attendanceData, setAttendanceData] = useState([]);
   const [loadingAttendance, setLoadingAttendance] = useState(false);
   const [doctorSearchQuery, setDoctorSearchQuery] = useState('');
-  const [transferApproved, setTransferApproved] = useState(() => {
-    return localStorage.getItem('transferApproved') === 'true';
-  });
-  const [reassignmentApproved, setReassignmentApproved] = useState(() => {
-    return localStorage.getItem('reassignmentApproved') === 'true';
-  });
+  const [selectedPhc, setSelectedPhc] = useState('all');
+  const [selectedStatus, setSelectedStatus] = useState('all');
+  const [selectedRole, setSelectedRole] = useState('all');
   const tableRef = useRef(null);
   const [doctorPage, setDoctorPage] = useState(1);
   const doctorsPerPage = 10;
 
   useEffect(() => {
     setDoctorPage(1);
-  }, [doctorSearchQuery, activeModal]);
+  }, [doctorSearchQuery, selectedPhc, selectedStatus, selectedRole, activeModal]);
+
+  useEffect(() => {
+    setDoctorSearchQuery('');
+    setSelectedPhc('all');
+    setSelectedStatus('all');
+    setSelectedRole('all');
+  }, [activeModal]);
 
   const handleApproveTransfer = () => {
     setTransferApproved(true);
-    localStorage.setItem('transferApproved', 'true');
   };
 
   const handleApproveReassignment = () => {
     setReassignmentApproved(true);
-    localStorage.setItem('reassignmentApproved', 'true');
   };
 
   // Reset modal state when district changes
@@ -438,30 +447,129 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
                 </div>
               ) : (
                 <>
-                  <div style={{ padding: '0 0 16px 0', borderBottom: '1px solid var(--border)', marginBottom: '16px' }}>
-                    <input
-                      type="text"
-                      placeholder={language === 'hi' ? 'नाम या स्थान (पीएचसी) से डॉक्टरों को खोजें...' : language === 'te' ? 'వైద్యులను పేరు లేదా స్థలం ద్వారా శోధించండి...' : 'Search doctors by name or place (PHC)...'}
-                      value={doctorSearchQuery}
-                      onChange={(e) => setDoctorSearchQuery(e.target.value)}
-                      style={{
-                        width: '100%',
-                        padding: '10px 16px',
-                        borderRadius: 'var(--radius-sm)',
-                        border: '1px solid var(--border)',
-                        backgroundColor: 'var(--bg-app)',
-                        color: 'var(--text-primary)',
-                        fontSize: '14px'
-                      }}
-                    />
+                  <div style={{ 
+                    display: 'grid', 
+                    gridTemplateColumns: 'repeat(auto-fit, minmax(130px, 1fr))', 
+                    gap: '12px', 
+                    padding: '0 0 16px 0', 
+                    borderBottom: '1px solid var(--border)', 
+                    marginBottom: '16px' 
+                  }}>
+                    <div>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        {language === 'hi' ? 'डॉक्टर का नाम' : language === 'te' ? 'వైద్యుని పేరు' : 'Doctor Name'}
+                      </label>
+                      <input
+                        type="text"
+                        placeholder={language === 'hi' ? 'नाम से खोजें...' : language === 'te' ? 'పేరు ద్వారా శోధించండి...' : 'Search name...'}
+                        value={doctorSearchQuery}
+                        onChange={(e) => setDoctorSearchQuery(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          borderRadius: 'var(--radius-sm)',
+                          border: '1px solid var(--border)',
+                          backgroundColor: 'var(--bg-app)',
+                          color: 'var(--text-primary)',
+                          fontSize: '13px',
+                          height: '38px',
+                          boxSizing: 'border-box'
+                        }}
+                      />
+                    </div>
+                    
+                    <div>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        {language === 'hi' ? 'स्थान (पीएचसी)' : language === 'te' ? 'స్థలం (PHC)' : 'Place (PHC)'}
+                      </label>
+                      <select
+                        value={selectedPhc}
+                        onChange={(e) => setSelectedPhc(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          borderRadius: 'var(--radius-sm)',
+                          border: '1px solid var(--border)',
+                          backgroundColor: 'var(--bg-app)',
+                          color: 'var(--text-primary)',
+                          fontSize: '13px',
+                          height: '38px',
+                          cursor: 'pointer',
+                          boxSizing: 'border-box'
+                        }}
+                      >
+                        <option value="all">{language === 'hi' ? 'सभी स्थान' : language === 'te' ? 'అన్ని స్థలాలు' : 'All Places'}</option>
+                        {Array.from(new Set(attendanceData.map(doc => doc.phcName))).sort().map(name => (
+                          <option key={name} value={name}>{name}</option>
+                        ))}
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        {language === 'hi' ? 'स्थिति' : language === 'te' ? 'స్థితి' : 'Status'}
+                      </label>
+                      <select
+                        value={selectedStatus}
+                        onChange={(e) => setSelectedStatus(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          borderRadius: 'var(--radius-sm)',
+                          border: '1px solid var(--border)',
+                          backgroundColor: 'var(--bg-app)',
+                          color: 'var(--text-primary)',
+                          fontSize: '13px',
+                          height: '38px',
+                          cursor: 'pointer',
+                          boxSizing: 'border-box'
+                        }}
+                      >
+                        <option value="all">{language === 'hi' ? 'सभी' : language === 'te' ? 'అన్ని' : 'All'}</option>
+                        <option value="Present">{language === 'hi' ? 'उपस्थित' : language === 'te' ? 'హాజరు' : 'Present'}</option>
+                        <option value="Absent">{language === 'hi' ? 'अनुपस्थित' : language === 'te' ? 'గైర్హాజరు' : 'Absent'}</option>
+                        <option value="On Leave">{language === 'hi' ? 'छुट्टी पर' : language === 'te' ? 'సెలవులో' : 'On Leave'}</option>
+                      </select>
+                    </div>
+
+                    <div>
+                      <label style={{ display: 'block', fontSize: '11px', fontWeight: '600', color: 'var(--text-secondary)', marginBottom: '4px' }}>
+                        {language === 'hi' ? 'पद / विशेषता' : language === 'te' ? 'పదవి / ప్రత్యేకత' : 'Position / Specialty'}
+                      </label>
+                      <select
+                        value={selectedRole}
+                        onChange={(e) => setSelectedRole(e.target.value)}
+                        style={{
+                          width: '100%',
+                          padding: '8px 12px',
+                          borderRadius: 'var(--radius-sm)',
+                          border: '1px solid var(--border)',
+                          backgroundColor: 'var(--bg-app)',
+                          color: 'var(--text-primary)',
+                          fontSize: '13px',
+                          height: '38px',
+                          cursor: 'pointer',
+                          boxSizing: 'border-box'
+                        }}
+                      >
+                        <option value="all">{language === 'hi' ? 'सभी पद' : language === 'te' ? 'అన్ని పదవులు' : 'All Roles'}</option>
+                        <option value="cmo">{language === 'hi' ? 'सीएमओ (CMO)' : language === 'te' ? 'సీఎంఓ (CMO)' : 'CMO'}</option>
+                        <option value="surgeon">{language === 'hi' ? 'सर्जन' : language === 'te' ? 'సర్జన్' : 'Surgeon'}</option>
+                        <option value="pediatrician">{language === 'hi' ? 'बाल रोग विशेषज्ञ' : language === 'te' ? 'పిడియాట్రీషియన్' : 'Pediatrician'}</option>
+                        <option value="general physician">{language === 'hi' ? 'सामान्य चिकित्सक' : language === 'te' ? 'జనరల్ ఫిజీషియన్' : 'General Physician'}</option>
+                      </select>
+                    </div>
                   </div>
                   
                   <div className="modal-body-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                     {(() => {
-                      const filtered = attendanceData.filter(doc => 
-                        doc.staffName.toLowerCase().includes(doctorSearchQuery.toLowerCase()) ||
-                        doc.phcName.toLowerCase().includes(doctorSearchQuery.toLowerCase())
-                      );
+                      const filtered = attendanceData.filter(doc => {
+                        const matchesSearch = doc.staffName.toLowerCase().includes(doctorSearchQuery.toLowerCase());
+                        const matchesPhc = selectedPhc === 'all' || doc.phcName === selectedPhc;
+                        const matchesStatus = selectedStatus === 'all' || doc.status === selectedStatus;
+                        const matchesRole = selectedRole === 'all' || doc.role.toLowerCase().includes(selectedRole.toLowerCase());
+                        return matchesSearch && matchesPhc && matchesStatus && matchesRole;
+                      });
 
                       const totalPages = Math.ceil(filtered.length / doctorsPerPage);
                       const startIndex = (doctorPage - 1) * doctorsPerPage;

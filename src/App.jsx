@@ -22,6 +22,8 @@ function App() {
   const [language, setLanguage] = useState(() => {
     return localStorage.getItem('language') || 'en';
   });
+  const [transferApproved, setTransferApproved] = useState(false);
+  const [reassignmentApproved, setReassignmentApproved] = useState(false);
 
   const handleLanguageChange = (lang) => {
     setLanguage(lang);
@@ -132,7 +134,16 @@ function App() {
             <Routes>
               <Route 
                 path="/" 
-                element={<Dashboard selectedDistrictId={selectedDistrictId} language={language} />} 
+                element={
+                  <Dashboard 
+                    selectedDistrictId={selectedDistrictId} 
+                    language={language}
+                    transferApproved={transferApproved}
+                    setTransferApproved={setTransferApproved}
+                    reassignmentApproved={reassignmentApproved}
+                    setReassignmentApproved={setReassignmentApproved}
+                  />
+                } 
               />
               <Route 
                 path="/phc/:id" 
