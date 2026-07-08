@@ -1,69 +1,6 @@
 import { db } from '../firebase';
 import { collection, getDocs, onSnapshot, query, where } from 'firebase/firestore';
 
-const DOCTOR_NAMES_BY_PHC = {
-  'phc-1': [
-    { name: 'Dr. Sarah Jenkins', role: 'Doctor (CMO)' },
-    { name: 'Dr. Amit Patel', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. Sophia Loren', role: 'Doctor (General Physician)' },
-    { name: 'Dr. Raj Singh', role: 'Doctor (Surgeon)' }
-  ],
-  'phc-2': [
-    { name: 'Dr. Ramesh Kumar', role: 'Doctor (CMO)' },
-    { name: 'Dr. Priya Nair', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. David Miller', role: 'Doctor (General Physician)' },
-    { name: 'Dr. Anita Desai', role: 'Doctor (Surgeon)' }
-  ],
-  'phc-3': [
-    { name: 'Dr. Syeda Fatima', role: 'Doctor (CMO)' },
-    { name: 'Dr. Asif Ali', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. Vikram Reddy', role: 'Doctor (General Physician)' },
-    { name: 'Dr. Mohammed Ghouse', role: 'Doctor (Surgeon)' }
-  ],
-  'phc-4': [
-    { name: 'Dr. John Smith', role: 'Doctor (CMO)' },
-    { name: 'Dr. Kavitha Rao', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. George Kutty', role: 'Doctor (General Physician)' },
-    { name: 'Dr. Preeti Sharma', role: 'Doctor (Surgeon)' }
-  ],
-  'phc-5': [
-    { name: 'Dr. N. Janardhan', role: 'Doctor (CMO)' },
-    { name: 'Dr. B. Radhika', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. M. Sridhar', role: 'Doctor (General Physician)' },
-    { name: 'Dr. K. Srinivas', role: 'Doctor (Surgeon)' }
-  ],
-  'phc-6': [
-    { name: 'Dr. T. Venkat', role: 'Doctor (CMO)' },
-    { name: 'Dr. G. Lakshmi', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. P. Ravindra', role: 'Doctor (General Physician)' },
-    { name: 'Dr. S. Shashi', role: 'Doctor (Surgeon)' }
-  ],
-  'phc-7': [
-    { name: 'Dr. Robert Vance', role: 'Doctor (CMO)' },
-    { name: 'Dr. Angela Martin', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. Jim Halpert', role: 'Doctor (General Physician)' },
-    { name: 'Dr. Michael Scott', role: 'Doctor (Surgeon)' }
-  ],
-  'phc-8': [
-    { name: 'Dr. Hari Prasad', role: 'Doctor (CMO)' },
-    { name: 'Dr. V. Sandhya', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. N. Rakesh', role: 'Doctor (General Physician)' },
-    { name: 'Dr. G. Archana', role: 'Doctor (Surgeon)' }
-  ],
-  'phc-9': [
-    { name: 'Dr. K. Raghav', role: 'Doctor (CMO)' },
-    { name: 'Dr. M. Swathi', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. D. Rajesh', role: 'Doctor (General Physician)' },
-    { name: 'Dr. P. Shilpa', role: 'Doctor (Surgeon)' }
-  ],
-  'phc-10': [
-    { name: 'Dr. B. Yadagiri', role: 'Doctor (CMO)' },
-    { name: 'Dr. C. Anuradha', role: 'Doctor (Pediatrician)' },
-    { name: 'Dr. M. Shekhar', role: 'Doctor (General Physician)' },
-    { name: 'Dr. J. Swapna', role: 'Doctor (Surgeon)' }
-  ]
-};
-
 const DEFAULT_NURSES = [
   { name: 'Nurse Priya Sharma', role: 'Head Nurse' },
   { name: 'Nurse Jessica Taylor', role: 'Staff Nurse' },
@@ -72,36 +9,60 @@ const DEFAULT_NURSES = [
 ];
 
 const getMockAttendanceForPhc = (phcId) => {
-  const customDoctors = DOCTOR_NAMES_BY_PHC[phcId] || DOCTOR_NAMES_BY_PHC['phc-1'];
-  let staffList = [...customDoctors, ...DEFAULT_NURSES];
+  let totalD = 8;
+  let presentD = 7;
   
-  if (phcId === 'phc-3') {
-    staffList = staffList.slice(0, 5);
-  }
+  if (phcId === 'phc-2') { totalD = 12; presentD = 10; }
+  else if (phcId === 'phc-3') { totalD = 15; presentD = 11; }
+  else if (phcId === 'phc-4') { totalD = 18; presentD = 16; }
+  else if (phcId === 'phc-5') { totalD = 20; presentD = 18; }
+  else if (phcId === 'phc-6') { totalD = 14; presentD = 12; }
+  else if (phcId === 'phc-7') { totalD = 16; presentD = 15; }
+  else if (phcId === 'phc-8') { totalD = 6;  presentD = 5; }
+  else if (phcId === 'phc-9') { totalD = 6;  presentD = 4; }
+  else if (phcId === 'phc-10') { totalD = 5; presentD = 3; }
 
-  return staffList.map((person, idx) => {
+  const firstNames = ['Sarah', 'Amit', 'Sophia', 'Raj', 'Ramesh', 'Priya', 'David', 'Anita', 'Syeda', 'Asif', 'Vikram', 'George', 'Kavitha', 'John', 'Preeti', 'Janardhan', 'Radhika', 'Sridhar', 'Srinivas', 'Venkat', 'Lakshmi', 'Ravindra', 'Shashi', 'Angela', 'Jim', 'Michael', 'Robert', 'Archana', 'Rakesh', 'Sandhya', 'Hari', 'Raghav', 'Swathi', 'Rajesh', 'Shilpa', 'Yadagiri', 'Anuradha', 'Shekhar', 'Swapna', 'Kishore', 'Deepika', 'Kiran', 'Nisha', 'Vijay', 'Divya'];
+  const lastNames = ['Jenkins', 'Patel', 'Loren', 'Singh', 'Kumar', 'Nair', 'Miller', 'Desai', 'Fatima', 'Ali', 'Reddy', 'Ghouse', 'Rao', 'Kutty', 'Smith', 'Sharma', 'Vance', 'Halpert', 'Scott', 'Martin', 'Prasad', 'Chawla', 'Mehta', 'Joshi', 'Gupta', 'Verma', 'Kapoor', 'Sen', 'Dutta'];
+  const roles = ['Doctor (General Physician)', 'Doctor (Pediatrician)', 'Doctor (Surgeon)', 'Doctor (CMO)'];
+
+  const doctorsList = [];
+  const facilitySeed = parseInt(phcId.replace('phc-', '')) || 1;
+
+  for (let i = 0; i < totalD; i++) {
+    const fIdx = (i + facilitySeed * 7) % firstNames.length;
+    const lIdx = (i * 2 + facilitySeed * 11) % lastNames.length;
+    const roleIdx = i % roles.length;
+    
+    const name = `Dr. ${firstNames[fIdx]} ${lastNames[lIdx]}`;
+    const role = i === 0 ? 'Doctor (CMO)' : roles[roleIdx];
+    
     let status = 'Present';
     let checkIn = '08:30 AM';
     
-    // Vary checks based on index
-    if (idx === 3) {
-      status = 'Absent';
-      checkIn = '-';
-    } else if (idx === 2 && (phcId === 'phc-3' || phcId === 'phc-5' || phcId === 'phc-9' || phcId === 'phc-10')) {
-      status = 'Absent';
-      checkIn = '-';
-    } else if (idx === 1 && phcId === 'phc-10') {
-      status = 'On Leave';
+    if (i >= presentD) {
+      status = (i % 2 === 0) ? 'On Leave' : 'Absent';
       checkIn = '-';
     }
 
+    doctorsList.push({
+      staffName: name,
+      role,
+      status,
+      checkInTime: checkIn
+    });
+  }
+
+  const staffList = [...doctorsList, ...DEFAULT_NURSES];
+
+  return staffList.map((person, idx) => {
     return {
       id: `att-${phcId}-${idx}`,
       phcId,
-      staffName: person.name,
+      staffName: person.staffName,
       role: person.role,
-      status,
-      checkInTime: checkIn,
+      status: person.status,
+      checkInTime: person.checkInTime,
       date: new Date().toISOString().split('T')[0]
     };
   });

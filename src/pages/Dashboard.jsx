@@ -39,6 +39,12 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
     return localStorage.getItem('reassignmentApproved') === 'true';
   });
   const tableRef = useRef(null);
+  const [doctorPage, setDoctorPage] = useState(1);
+  const doctorsPerPage = 10;
+
+  useEffect(() => {
+    setDoctorPage(1);
+  }, [doctorSearchQuery, activeModal]);
 
   const handleApproveTransfer = () => {
     setTransferApproved(true);
@@ -450,64 +456,136 @@ const Dashboard = ({ selectedDistrictId, language = 'en' }) => {
                     />
                   </div>
                   
-                  <div className="modal-body-list">
+                  <div className="modal-body-list" style={{ maxHeight: '400px', overflowY: 'auto' }}>
                     {(() => {
                       const filtered = attendanceData.filter(doc => 
                         doc.staffName.toLowerCase().includes(doctorSearchQuery.toLowerCase()) ||
                         doc.phcName.toLowerCase().includes(doctorSearchQuery.toLowerCase())
                       );
 
-                      return filtered.length > 0 ? (
-                        filtered.map((doc) => {
-                          let statusColor = 'var(--text-muted)';
-                          let statusBg = 'var(--border)';
-                          if (doc.status === 'Present') {
-                            statusColor = 'var(--success)';
-                            statusBg = 'var(--success-light)';
-                          } else if (doc.status === 'Absent') {
-                            statusColor = 'var(--danger)';
-                            statusBg = 'var(--danger-light)';
-                          } else if (doc.status === 'On Leave') {
-                            statusColor = 'var(--warning)';
-                            statusBg = 'var(--warning-light)';
-                          }
+                      const totalPages = Math.ceil(filtered.length / doctorsPerPage);
+                      const startIndex = (doctorPage - 1) * doctorsPerPage;
+                      const endIndex = startIndex + doctorsPerPage;
+                      const paginatedDocs = filtered.slice(startIndex, endIndex);
 
-                          return (
-                            <div key={doc.id} className="modal-list-item">
-                              <div className="modal-list-item-left">
-                                <span className="modal-list-item-name">{doc.staffName}</span>
-                                <span className="modal-list-item-sub">
-                                  {doc.role} • <strong>{doc.phcName}</strong>
-                                </span>
-                              </div>
-                              <div className="modal-list-item-right">
-                                <span 
-                                  className="badge" 
-                                  style={{ 
-                                    backgroundColor: statusBg, 
-                                    color: statusColor, 
-                                    border: `1px solid ${statusBg}`,
-                                    padding: '4px 10px',
-                                    borderRadius: '9999px',
-                                    fontSize: '12px',
-                                    fontWeight: '600'
-                                  }}
+                      return (
+                        <>
+                          {paginatedDocs.length > 0 ? (
+                            paginatedDocs.map((doc) => {
+                              let statusColor = 'var(--text-muted)';
+                              let statusBg = 'var(--border)';
+                              if (doc.status === 'Present') {
+                                statusColor = 'var(--success)';
+                                statusBg = 'var(--success-light)';
+                              } else if (doc.status === 'Absent') {
+                                statusColor = 'var(--danger)';
+                                statusBg = 'var(--danger-light)';
+                              } else if (doc.status === 'On Leave') {
+                                statusColor = 'var(--warning)';
+                                statusBg = 'var(--warning-light)';
+                              }
+
+                              return (
+                                <div key={doc.id} className="modal-list-item">
+                                  <div className="modal-list-item-left">
+                                    <span className="modal-list-item-name">{doc.staffName}</span>
+                                    <span className="modal-list-item-sub">
+                                      {doc.role} • <strong>{doc.phcName}</strong>
+                                    </span>
+                                  </div>
+                                  <div className="modal-list-item-right">
+                                    <span 
+                                      className="badge" 
+                                      style={{ 
+                                        backgroundColor: statusBg, 
+                                        color: statusColor, 
+                                        border: `1px solid ${statusBg}`,
+                                        padding: '4px 10px',
+                                        borderRadius: '9999px',
+                                        fontSize: '12px',
+                                        fontWeight: '600'
+                                      }}
+                                    >
+                                      {doc.status}
+                                    </span>
+                                    {doc.status === 'Present' && doc.checkInTime !== '-' && (
+                                      <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
+                                        {doc.checkInTime}
+                                      </span>
+                                    )}
+                                  </div>
+                                </div>
+                              );
+                            })
+                          ) : (
+                            <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)' }}>
+                              {language === 'hi' ? 'कोई डॉक्टर नहीं मिले।' : language === 'te' ? 'వైద్యులు ఎవరూ కనుగొనబడలేదు.' : 'No doctors found matching query.'}
+                            </div>
+                          )}
+
+                          {totalPages > 1 && (
+                            <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginTop: '20px', borderTop: '1px solid var(--border)', paddingTop: '16px', flexWrap: 'wrap', gap: '12px' }}>
+                              <span style={{ fontSize: '13px', color: 'var(--text-muted)' }}>
+                                Showing {startIndex + 1}-{Math.min(endIndex, filtered.length)} of {filtered.length} Doctors
+                              </span>
+                              <div style={{ display: 'flex', gap: '6px', alignItems: 'center' }}>
+                                <button 
+                                  type="button" 
+                                  className="filter-btn" 
+                                  onClick={() => setDoctorPage(prev => Math.max(1, prev - 1))}
+                                  disabled={doctorPage === 1}
+                                  style={{ padding: '6px 10px', fontSize: '12px', cursor: doctorPage === 1 ? 'not-allowed' : 'pointer', opacity: doctorPage === 1 ? 0.5 : 1 }}
                                 >
-                                  {doc.status}
-                                </span>
-                                {doc.status === 'Present' && doc.checkInTime !== '-' && (
-                                  <span style={{ fontSize: '12px', color: 'var(--text-muted)' }}>
-                                    {doc.checkInTime}
-                                  </span>
-                                )}
+                                  Prev
+                                </button>
+                                <div style={{ display: 'flex', gap: '4px' }}>
+                                  {Array.from({ length: totalPages }, (_, idx) => idx + 1).map((pg) => {
+                                    const isVisible = pg === 1 || pg === totalPages || Math.abs(pg - doctorPage) <= 1;
+                                    if (!isVisible) {
+                                      if (pg === 2 || pg === totalPages - 1) {
+                                        return <span key={`ell-${pg}`} style={{ color: 'var(--text-muted)', fontSize: '12px', padding: '0 4px' }}>...</span>;
+                                      }
+                                      return null;
+                                    }
+
+                                    return (
+                                      <button
+                                        key={pg}
+                                        type="button"
+                                        onClick={() => setDoctorPage(pg)}
+                                        style={{
+                                          width: '28px',
+                                          height: '28px',
+                                          display: 'flex',
+                                          alignItems: 'center',
+                                          justifyContent: 'center',
+                                          borderRadius: 'var(--radius-sm)',
+                                          border: '1px solid var(--border)',
+                                          fontSize: '12px',
+                                          cursor: 'pointer',
+                                          backgroundColor: doctorPage === pg ? 'var(--primary)' : 'var(--bg-app)',
+                                          color: doctorPage === pg ? '#fff' : 'var(--text-primary)',
+                                          fontWeight: doctorPage === pg ? 'bold' : 'normal'
+                                        }}
+                                      >
+                                        {pg}
+                                      </button>
+                                    );
+                                  })}
+                                </div>
+                                <button 
+                                  type="button" 
+                                  className="filter-btn" 
+                                  onClick={() => setDoctorPage(prev => Math.min(totalPages, prev + 1))}
+                                  disabled={doctorPage === totalPages}
+                                  style={{ padding: '6px 10px', fontSize: '12px', cursor: doctorPage === totalPages ? 'not-allowed' : 'pointer', opacity: doctorPage === totalPages ? 0.5 : 1 }}
+                                >
+                                  Next
+                                </button>
                               </div>
                             </div>
-                          );
-                        })
-                      ) : (
-                        <div style={{ textAlign: 'center', padding: '30px 0', color: 'var(--text-secondary)' }}>
-                          {language === 'hi' ? 'कोई डॉक्टर नहीं मिले।' : language === 'te' ? 'వైద్యులు ఎవరూ కనుగొనబడలేదు.' : 'No doctors found matching query.'}
-                        </div>
+                          )}
+                        </>
                       );
                     })()}
                   </div>
