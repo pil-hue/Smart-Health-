@@ -86,7 +86,6 @@ VITE_FIREBASE_STORAGE_BUCKET=your_project.firebasestorage.app
 VITE_FIREBASE_MESSAGING_SENDER_ID=your_sender_id
 VITE_FIREBASE_APP_ID=your_app_id
 ```
-*(Note: If Firestore credentials are empty or blocked, the service layers will automatically fall back to serving mock analytics seamlessly).*
 
 ### 4. Run Development Server
 Start the local development server:
